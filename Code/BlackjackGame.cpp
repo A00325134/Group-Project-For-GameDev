@@ -1,14 +1,23 @@
-#include "../BlackjackGame.h"
+#include "BlackjackGame.h"
 #include "LevelFactory.h"
 #include <iostream>
 
 BlackjackGame::BlackjackGame(int startingChips, int startingLevel,
                              int wins, int losses, int pushes,
                              int blackjacks, int rounds,
-                             int currentStreak, int bestStreak)
+                             int currentStreak, int bestStreak,
+                             int levelStartChips)
     : _player("Player", startingChips), _dealer("Dealer")
 {
     _levelNumber = startingLevel;
+    if (levelStartChips < 0)
+    {
+        _levelStartChips = startingChips;
+    }
+    else
+    {
+        _levelStartChips = levelStartChips;
+    }
     _wins = wins;
     _losses = losses;
     _pushes = pushes;
@@ -43,7 +52,8 @@ void BlackjackGame::RecordLoss()
 bool BlackjackGame::SaveProgress()
 {
     return _saveManager.SaveGame(_player.GetChips(), _levelNumber,
-                                 _wins, _losses, _pushes, _blackjacks,
+                                 _levelStartChips, _wins, _losses,
+                                 _pushes, _blackjacks,
                                  _rounds, _currentStreak, _bestStreak);
 }
 
@@ -246,7 +256,7 @@ void BlackjackGame::DisplayRules()
     std::cout << "  A tie is a push and your chips are unchanged.\n";
     std::cout << "  A bust is any total over 21.\n\n";
     std::cout << "Progression:\n";
-    std::cout << "  Complete each chip target to unlock the next table.\n";
+    std::cout << "  Earn the table profit target to unlock the next level.\n";
     std::cout << "  Your progress is automatically saved after each round.\n";
     std::cout << "+==========================================+\n";
 }
@@ -269,7 +279,13 @@ void BlackjackGame::Start()
 
         currentLevel->DisplayIntro();
 
-        while (_player.GetChips() < currentLevel->GetTargetChips())
+        // Each table has its own profit target. This prevents a large bankroll
+        // earned on an earlier table from skipping the next level.
+        int targetChips = _levelStartChips + currentLevel->GetProfitTarget();
+        std::cout << "Starting balance at this table: " << _levelStartChips << " chips\n";
+        std::cout << "Balance needed to complete this table: " << targetChips << " chips\n";
+
+        while (_player.GetChips() < targetChips)
         {
             if (_player.GetChips() < currentLevel->GetMinimumBet())
             {
@@ -284,7 +300,10 @@ void BlackjackGame::Start()
                 return;
             }
 
-            if (_player.GetChips() >= currentLevel->GetTargetChips())
+            std::cout << "Table progress: " << _player.GetChips()
+                      << " / " << targetChips << " chips\n";
+
+            if (_player.GetChips() >= targetChips)
             {
                 break;
             }
@@ -348,7 +367,7 @@ void BlackjackGame::Start()
             return;
         }
 
-        if (_player.GetChips() >= currentLevel->GetTargetChips())
+        if (_player.GetChips() >= targetChips)
         {
             int reward = currentLevel->GetCompletionBonus();
             std::cout << "\nCongratulations! You completed the "
@@ -358,6 +377,7 @@ void BlackjackGame::Start()
 
             delete currentLevel;
             _levelNumber++;
+            _levelStartChips = _player.GetChips();
 
             SaveProgress();
         }

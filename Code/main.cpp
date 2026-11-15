@@ -2,7 +2,7 @@
 #include <cstdlib>
 #include <ctime>
 #include "BlackjackGame.h"
-#include "../SaveManager.h"
+#include "SaveManager.h"
 
 int main()
 {
@@ -41,6 +41,7 @@ int main()
         {
             int chips = 0;
             int level = 1;
+            int levelStartChips = 500;
             int wins = 0;
             int losses = 0;
             int pushes = 0;
@@ -50,12 +51,13 @@ int main()
             int bestStreak = 0;
             SaveManager saveManager;
 
-            if (saveManager.LoadGame(chips, level, wins, losses, pushes,
+            if (saveManager.LoadGame(chips, level, levelStartChips, wins, losses, pushes,
                                      blackjacks, rounds, currentStreak, bestStreak))
             {
                 std::cout << "Save loaded successfully. Welcome back!\n";
                 BlackjackGame game(chips, level, wins, losses, pushes,
-                                   blackjacks, rounds, currentStreak, bestStreak);
+                                   blackjacks, rounds, currentStreak, bestStreak,
+                                   levelStartChips);
                 game.Start();
             }
             else

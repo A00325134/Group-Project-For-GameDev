@@ -1,5 +1,5 @@
-#include "../LevelFactory.h"
-#include "../Levels.h"
+#include "LevelFactory.h"
+#include "Levels.h"
 
 Level* LevelFactory::CreateLevel(int levelNumber)
 {

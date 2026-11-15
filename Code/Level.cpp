@@ -1,10 +1,10 @@
-#include "../Level.h"
+#include "Level.h"
 
-Level::Level(std::string name, int minimumBet, int targetChips, int completionBonus)
+Level::Level(std::string name, int minimumBet, int profitTarget, int completionBonus)
 {
     _name = name;
     _minimumBet = minimumBet;
-    _targetChips = targetChips;
+    _profitTarget = profitTarget;
     _completionBonus = completionBonus;
 }
 
@@ -18,9 +18,9 @@ int Level::GetMinimumBet() const
     return _minimumBet;
 }
 
-int Level::GetTargetChips() const
+int Level::GetProfitTarget() const
 {
-    return _targetChips;
+    return _profitTarget;
 }
 
 int Level::GetCompletionBonus() const
