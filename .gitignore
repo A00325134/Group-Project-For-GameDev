@@ -1,0 +1,7 @@
+blackjack
+blackjack.exe
+blackjack_test
+blackjack_save.txt
+*.o
+*.obj
+*.exe
