@@ -1,10 +1,10 @@
 #pragma once
 #include <vector>
-#include "Player.h"
-#include "Dealer.h"
-#include "Deck.h"
+#include "../Player.h"
+#include "../Dealer.h"
+#include "../Deck.h"
 #include "Level.h"
-#include "SaveManager.h"
+#include "../SaveManager.h"
 #include "Participant.h"
 
 class BlackjackGame

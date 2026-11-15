@@ -1,4 +1,4 @@
-#include "Dealer.h"
+#include "../Dealer.h"
 #include <iostream>
 
 Dealer::Dealer(std::string name)

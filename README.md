@@ -1,6 +1,6 @@
 # Blackjack: Road to the VIP Table
 
-A C++ console Blackjack game built around the concepts and code style in the supplied C++ lab notes.
+A C++ console Blackjack - John Mooeny - Valerija Sidorovica - Peter Conroy
 
 ## Features
 
@@ -10,9 +10,7 @@ A C++ console Blackjack game built around the concepts and code style in the sup
 - Hit, Stand and Double Down.
 - Dealer shows the upcard, keeps the hole card hidden until the reveal, and draws until 17.
 - Blackjack hand totals, including Aces counting as 1 or 11.
-- Natural Blackjack pays 3:2 (rounded down to a whole chip for odd bets).
-- Win, loss, push and Blackjack tracking.
-- Current and best win streak, rounds played and win rate.
+- Natural Blackjack pays 3:2.
 - Automatic save after each completed round, plus a save-and-return option.
 - Load saved progress from `blackjack_save.txt`.
 - Factory pattern for creating each level.
@@ -20,8 +18,7 @@ A C++ console Blackjack game built around the concepts and code style in the sup
 - Input validation for menu choices, bets and gameplay decisions.
 
 ## Build
-
-The project uses basic C++11 features. Compile all `.cpp` files together.
+I mean its C++ what did you expect? You can build the game using `g++` or Visual Studio.
 
 ### g++
 
@@ -35,12 +32,11 @@ Run:
 ./blackjack
 ```
 
-On Windows, the output executable can be named `blackjack.exe` instead.
-
 ### Visual Studio
 
 Create a C++ Console App, add all the `.cpp` files to the project, and keep the `.h` files in the same project folder. Build and run the project using Visual Studio.
-
+Personally I used CLion but hey if you want to use Visual Studio, go ahead... Even tho it is a pain in the ass to set up. In Clion just pull the GIT. 
+If you are on Linux or macOS then best of luck I have no idea. 
 ## Save file
 
 The game writes `blackjack_save.txt` into the program's working directory. It stores:
@@ -53,7 +49,7 @@ Progress is automatically saved after each round. The save manager also accepts 
 
 ## Project files
 
-Each class is split into a header (`.h`) and implementation (`.cpp`) file, following the separate-compilation examples in the course notes. `main.cpp` contains the title menu and starts the game.
+Each class is split into a header (`.h`) and implementation (`.cpp`) file, following the separate-compilation examples in the course notes. `Code/main.cpp` contains the title menu and starts the game.
 
 ## Class overview
 
@@ -86,3 +82,10 @@ Each class is split into a header (`.h`) and implementation (`.cpp`) file, follo
 - Double Down is available on the first two cards if the player's chip balance can cover the doubled bet. The player receives one card and then stands.
 - A tie is a push. Splitting, insurance and surrender are not included in this coursework version.
 - The game uses integer chips, so a 3:2 payout on an odd-numbered bet is rounded down to a whole chip.
+
+## Conclusions
+
+- Yes... I did actually write this whole readme... no not Claude's work
+- But why? you might ask... well a bad readme is worse than no readme at all. How would we undertsand what's happening with everyone's code shoved together in a single file? I mean sure it works but its not very readable. So I wrote this readme to explain the code and how it works.
+- "But no ones ever going to actually read it"... well wouldn't you feel safer with a parachute on a plane even if you never plan to use it?
+- Blah Blah anyway - Yours Sincerely, John Mooeny, Valerija Sidorovica and Peter Conroy. 

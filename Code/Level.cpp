@@ -1,4 +1,4 @@
-#include "Level.h"
+#include "../Level.h"
 
 Level::Level(std::string name, int minimumBet, int targetChips, int completionBonus)
 {

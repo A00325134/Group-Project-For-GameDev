@@ -1,4 +1,4 @@
-#include "Participant.h"
+#include "../Participant.h"
 
 Participant::Participant(std::string name)
 {

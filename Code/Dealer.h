@@ -1,5 +1,5 @@
 #pragma once
-#include "Participant.h"
+#include "../Participant.h"
 
 class Dealer : public Participant
 {

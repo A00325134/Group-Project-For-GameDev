@@ -1,4 +1,4 @@
-#include "Deck.h"
+#include "../Deck.h"
 #include <cstdlib>
 #include <string>
 
