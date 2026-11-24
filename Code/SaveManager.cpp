@@ -3,7 +3,7 @@
 #include <sstream>
 #include <string>
 
-bool SaveManager::SaveGame(int chips, int levelNumber, int levelStartChips,
+bool SaveManager::SaveGame(int chips, int levelNumber, int tableWins,
                            int wins, int losses, int pushes, int blackjacks,
                            int rounds, int currentStreak, int bestStreak)
 {
@@ -14,10 +14,11 @@ bool SaveManager::SaveGame(int chips, int levelNumber, int levelStartChips,
         return false;
     }
 
-    saveFile << "BLACKJACK_SAVE_V3\n";
+    // V4 stores wins earned at the current table separately from lifetime wins.
+    saveFile << "BLACKJACK_SAVE_V4\n";
     saveFile << chips << "\n";
     saveFile << levelNumber << "\n";
-    saveFile << levelStartChips << "\n";
+    saveFile << tableWins << "\n";
     saveFile << wins << "\n";
     saveFile << losses << "\n";
     saveFile << pushes << "\n";
@@ -30,7 +31,7 @@ bool SaveManager::SaveGame(int chips, int levelNumber, int levelStartChips,
     return !saveFile.fail();
 }
 
-bool SaveManager::LoadGame(int& chips, int& levelNumber, int& levelStartChips,
+bool SaveManager::LoadGame(int& chips, int& levelNumber, int& tableWins,
                            int& wins, int& losses, int& pushes,
                            int& blackjacks, int& rounds,
                            int& currentStreak, int& bestStreak)
@@ -42,26 +43,37 @@ bool SaveManager::LoadGame(int& chips, int& levelNumber, int& levelStartChips,
         return false;
     }
 
+    tableWins = 0;
     std::string firstLine;
     loadFile >> firstLine;
 
-    if (firstLine == "BLACKJACK_SAVE_V3")
+    if (firstLine == "BLACKJACK_SAVE_V4")
     {
-        loadFile >> chips >> levelNumber >> levelStartChips;
+        loadFile >> chips >> levelNumber >> tableWins;
         loadFile >> wins >> losses >> pushes >> blackjacks;
         loadFile >> rounds >> currentStreak >> bestStreak;
     }
+    else if (firstLine == "BLACKJACK_SAVE_V3")
+    {
+        // V3 used chip profit targets and stored the starting balance for a table.
+        // It did not record wins at each table, so start the current table at 0/3.
+        int oldLevelStartChips = 0;
+        loadFile >> chips >> levelNumber >> oldLevelStartChips;
+        loadFile >> wins >> losses >> pushes >> blackjacks;
+        loadFile >> rounds >> currentStreak >> bestStreak;
+
+        if (levelNumber == 4)
+        {
+            // Older builds could skip the VIP table. Re-enter it under the new rules.
+            levelNumber = 3;
+        }
+    }
     else if (firstLine == "BLACKJACK_SAVE_V2")
     {
-        // Older saves did not store the bankroll at the start of each table.
         loadFile >> chips >> levelNumber >> wins >> losses;
         loadFile >> pushes >> blackjacks >> rounds;
         loadFile >> currentStreak >> bestStreak;
-        levelStartChips = chips;
 
-        // Older versions could mark the campaign complete without playing
-        // the VIP table if the bankroll had already passed its fixed target.
-        // Let the player enter the VIP table again rather than skipping it.
         if (levelNumber == 4)
         {
             levelNumber = 3;
@@ -78,7 +90,6 @@ bool SaveManager::LoadGame(int& chips, int& levelNumber, int& levelStartChips,
         }
 
         loadFile >> levelNumber >> wins >> losses;
-        levelStartChips = chips;
         pushes = 0;
         blackjacks = 0;
         rounds = wins + losses;
@@ -88,8 +99,8 @@ bool SaveManager::LoadGame(int& chips, int& levelNumber, int& levelStartChips,
 
     if (loadFile.fail() || chips < 0 || chips > 1000000000
         || levelNumber < 1 || levelNumber > 4
-        || levelStartChips < 0 || levelStartChips > 1000000000
-        || wins < 0 || losses < 0 || pushes < 0
+        || tableWins < 0 || tableWins > 3
+        || wins < 0 || tableWins > wins || losses < 0 || pushes < 0
         || blackjacks < 0 || rounds < 0
         || currentStreak < 0 || bestStreak < currentStreak)
     {

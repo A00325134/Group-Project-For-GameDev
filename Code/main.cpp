@@ -32,6 +32,8 @@ int main()
             continue;
         }
 
+        std::cin.ignore(10000, '\n');
+
         if (choice == 1)
         {
             BlackjackGame game;
@@ -41,7 +43,7 @@ int main()
         {
             int chips = 0;
             int level = 1;
-            int levelStartChips = 500;
+            int tableWins = 0;
             int wins = 0;
             int losses = 0;
             int pushes = 0;
@@ -51,13 +53,13 @@ int main()
             int bestStreak = 0;
             SaveManager saveManager;
 
-            if (saveManager.LoadGame(chips, level, levelStartChips, wins, losses, pushes,
+            if (saveManager.LoadGame(chips, level, tableWins, wins, losses, pushes,
                                      blackjacks, rounds, currentStreak, bestStreak))
             {
                 std::cout << "Save loaded successfully. Welcome back!\n";
                 BlackjackGame game(chips, level, wins, losses, pushes,
                                    blackjacks, rounds, currentStreak, bestStreak,
-                                   levelStartChips);
+                                   tableWins);
                 game.Start();
             }
             else

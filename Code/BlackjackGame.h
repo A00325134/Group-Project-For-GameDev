@@ -17,7 +17,7 @@ private:
     SaveManager _saveManager;
 
     int _levelNumber;
-    int _levelStartChips; // chips held when the current table was unlocked
+    int _tableWins;
     int _wins;
     int _losses;
     int _pushes;
@@ -38,7 +38,7 @@ public:
                   int wins = 0, int losses = 0, int pushes = 0,
                   int blackjacks = 0, int rounds = 0,
                   int currentStreak = 0, int bestStreak = 0,
-                  int levelStartChips = -1);
+                  int tableWins = 0);
 
     void Start();
     static void DisplayRules();

@@ -6,18 +6,11 @@ BlackjackGame::BlackjackGame(int startingChips, int startingLevel,
                              int wins, int losses, int pushes,
                              int blackjacks, int rounds,
                              int currentStreak, int bestStreak,
-                             int levelStartChips)
+                             int tableWins)
     : _player("Player", startingChips), _dealer("Dealer")
 {
     _levelNumber = startingLevel;
-    if (levelStartChips < 0)
-    {
-        _levelStartChips = startingChips;
-    }
-    else
-    {
-        _levelStartChips = levelStartChips;
-    }
+    _tableWins = tableWins;
     _wins = wins;
     _losses = losses;
     _pushes = pushes;
@@ -35,6 +28,7 @@ BlackjackGame::BlackjackGame(int startingChips, int startingLevel,
 void BlackjackGame::RecordWin()
 {
     _wins++;
+    _tableWins++;
     _currentStreak++;
 
     if (_currentStreak > _bestStreak)
@@ -52,7 +46,7 @@ void BlackjackGame::RecordLoss()
 bool BlackjackGame::SaveProgress()
 {
     return _saveManager.SaveGame(_player.GetChips(), _levelNumber,
-                                 _levelStartChips, _wins, _losses,
+                                 _tableWins, _wins, _losses,
                                  _pushes, _blackjacks,
                                  _rounds, _currentStreak, _bestStreak);
 }
@@ -187,6 +181,7 @@ bool BlackjackGame::PlayRound(Level& level)
     std::cout << "Chips: " << _player.GetChips() << "\n";
     std::cout << "Record: " << _wins << " wins | " << _losses << " losses | "
               << _pushes << " pushes\n";
+    std::cout << "Current table wins: " << _tableWins << "/3\n";
     std::cout << "Current win streak: " << _currentStreak
               << " | Best: " << _bestStreak << "\n";
     std::cout << "+-------------------------------------------+\n";
@@ -215,6 +210,15 @@ void BlackjackGame::PrintSummary() const
     std::cout << "Pushes:            " << _pushes << "\n";
     std::cout << "Blackjacks:        " << _blackjacks << "\n";
     std::cout << "Best win streak:   " << _bestStreak << "\n";
+
+    if (_levelNumber <= 3)
+    {
+        std::cout << "Current table wins: " << _tableWins << "/3\n";
+    }
+    else
+    {
+        std::cout << "Campaign:          Complete\n";
+    }
 
     int decidedRounds = _wins + _losses;
     if (decidedRounds > 0)
@@ -256,7 +260,10 @@ void BlackjackGame::DisplayRules()
     std::cout << "  A tie is a push and your chips are unchanged.\n";
     std::cout << "  A bust is any total over 21.\n\n";
     std::cout << "Progression:\n";
-    std::cout << "  Earn the table profit target to unlock the next level.\n";
+    std::cout << "  Win 3 rounds at each table to unlock the next level.\n";
+    std::cout << "  Wins do not need to be consecutive.\n";
+    std::cout << "  A natural Blackjack counts as a win; pushes and losses do not.\n";
+    std::cout << "  Table completion rewards add bonus chips.\n";
     std::cout << "  Your progress is automatically saved after each round.\n";
     std::cout << "+==========================================+\n";
 }
@@ -266,6 +273,13 @@ void BlackjackGame::Start()
     std::cout << "\n+==========================================+\n";
     std::cout << "|       BLACKJACK: ROAD TO THE VIP TABLE   |\n";
     std::cout << "+==========================================+\n";
+
+    // Save immediately so starting a new game replaces any previous save,
+    // even if the player exits before finishing the first round.
+    if (!SaveProgress())
+    {
+        std::cout << "Warning: could not create the save file.\n";
+    }
 
     while (_levelNumber <= 3)
     {
@@ -278,18 +292,19 @@ void BlackjackGame::Start()
         }
 
         currentLevel->DisplayIntro();
+        std::cout << "Wins at this table: " << _tableWins
+                  << " / " << currentLevel->GetWinsRequired() << "\n";
 
-        // Each table has its own profit target. This prevents a large bankroll
-        // earned on an earlier table from skipping the next level.
-        int targetChips = _levelStartChips + currentLevel->GetProfitTarget();
-        std::cout << "Starting balance at this table: " << _levelStartChips << " chips\n";
-        std::cout << "Balance needed to complete this table: " << targetChips << " chips\n";
-
-        while (_player.GetChips() < targetChips)
+        while (_tableWins < currentLevel->GetWinsRequired())
         {
             if (_player.GetChips() < currentLevel->GetMinimumBet())
             {
-                break;
+                std::cout << "\nYou do not have enough chips to place the next bet.\n";
+                SaveProgress();
+                delete currentLevel;
+                PrintSummary();
+                std::cout << "Game over! Better luck next time.\n";
+                return;
             }
 
             if (!PlayRound(*currentLevel))
@@ -300,10 +315,10 @@ void BlackjackGame::Start()
                 return;
             }
 
-            std::cout << "Table progress: " << _player.GetChips()
-                      << " / " << targetChips << " chips\n";
+            std::cout << "Table progress: " << _tableWins
+                      << " / " << currentLevel->GetWinsRequired() << " wins\n";
 
-            if (_player.GetChips() >= targetChips)
+            if (_tableWins >= currentLevel->GetWinsRequired())
             {
                 break;
             }
@@ -338,6 +353,8 @@ void BlackjackGame::Start()
                     continue;
                 }
 
+                std::cin.ignore(10000, '\n');
+
                 if (choice == 1 || choice == 2)
                 {
                     validChoice = true;
@@ -357,29 +374,31 @@ void BlackjackGame::Start()
             }
         }
 
-        if (_player.GetChips() < currentLevel->GetMinimumBet())
-        {
-            std::cout << "\nYou do not have enough chips to place the next bet.\n";
-            SaveProgress();
-            delete currentLevel;
-            PrintSummary();
-            std::cout << "Game over! Better luck next time.\n";
-            return;
-        }
-
-        if (_player.GetChips() >= targetChips)
+        // If the player won the required number of rounds, award the table bonus
+        // and advance. The count resets for the next table; lifetime wins remain.
+        if (_tableWins >= currentLevel->GetWinsRequired())
         {
             int reward = currentLevel->GetCompletionBonus();
-            std::cout << "\nCongratulations! You completed the "
-                      << currentLevel->GetName() << ".\n";
+            std::cout << "\nCongratulations! You cleared the "
+                      << currentLevel->GetName() << "!\n";
+            std::cout << "You won " << currentLevel->GetWinsRequired()
+                      << " rounds at this table.\n";
             std::cout << "Table completion reward: +" << reward << " chips!\n";
             _player.AddChips(reward);
 
             delete currentLevel;
             _levelNumber++;
-            _levelStartChips = _player.GetChips();
+            _tableWins = 0;
 
             SaveProgress();
+        }
+        else
+        {
+            // The player ran out of chips before clearing the table.
+            delete currentLevel;
+            PrintSummary();
+            std::cout << "Game over! You need more chips to continue.\n";
+            return;
         }
     }
 

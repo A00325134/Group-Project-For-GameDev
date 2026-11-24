@@ -40,6 +40,8 @@ bool Player::PlaceBet(int minimumBet)
             continue;
         }
 
+        std::cin.ignore(10000, '\n');
+
         if (bet < minimumBet)
         {
             std::cout << "Your bet must be at least " << minimumBet << ".\n";
@@ -59,7 +61,7 @@ bool Player::PlaceBet(int minimumBet)
 bool Player::CanDoubleDown() const
 {
     // Avoid doubling the bet if the player cannot afford the full amount.
-    return _hand.GetCardCount() == 2 && _chips >= _bet && _bet > 0
+    return _hand.GetCardCount() == 2 && _bet > 0
         && _bet <= _chips / 2;
 }
 
@@ -76,23 +78,34 @@ bool Player::DoubleBet()
 
 void Player::AddChips(int amount)
 {
+    // Keep the balance inside the range accepted by the save file.
+    const int maximumChips = 1000000000;
+
     if (amount > 0)
     {
-        _chips += amount;
+        if (_chips > maximumChips - amount)
+        {
+            _chips = maximumChips;
+        }
+        else
+        {
+            _chips += amount;
+        }
     }
 }
 
 void Player::WinBet()
 {
     // The original stake was not removed when the bet was placed.
-    _chips += _bet;
+    AddChips(_bet);
     _bet = 0;
 }
 
 void Player::WinBlackjackBet()
 {
     // Natural Blackjack pays 3:2. Fractional chips are rounded down.
-    _chips += (_bet * 3) / 2;
+    // Add the stake plus half the stake, avoiding multiplication overflow.
+    AddChips(_bet + (_bet / 2));
     _bet = 0;
 }
 
@@ -128,12 +141,18 @@ void Player::TakeTurn(Deck& deck)
         int choice = 0;
         if (!(std::cin >> choice))
         {
-            if (std::cin.eof()) return;
+            if (std::cin.eof())
+            {
+                std::cout << "\nInput ended. You stand with your current hand.\n";
+                break;
+            }
             std::cin.clear();
             std::cin.ignore(10000, '\n');
             std::cout << "Please enter a valid menu number.\n";
             continue;
         }
+
+        std::cin.ignore(10000, '\n');
 
         if (choice == 1)
         {
