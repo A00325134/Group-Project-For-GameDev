@@ -88,4 +88,4 @@ Each class is split into a header (`.h`) and implementation (`.cpp`) file, follo
 - Yes... I did actually write this whole readme... no not Claude's work
 - But why? you might ask... well a bad readme is worse than no readme at all. How would we undertsand what's happening with everyone's code shoved together in a single file? I mean sure it works but its not very readable. So I wrote this readme to explain the code and how it works.
 - "But no ones ever going to actually read it"... well wouldn't you feel safer with a parachute on a plane even if you never plan to use it?
-- Blah Blah anyway - Yours Sincerely, John Mooeny, Valerija Sidorovica and Peter Conroy. 
+- Blah Blah anyway - Yours Sincerely, John Mooeny, Valerija Sidorovica and Peter Conroy. (Guest contributor testing the game - Big Ponko). 
