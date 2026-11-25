@@ -1,0 +1,89 @@
+@startuml
+title Road to VIP - UML Overview
+
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam roundcorner 12
+skinparam packageStyle rectangle
+skinparam ArrowColor #555555
+skinparam ClassBorderColor #333333
+skinparam ClassBackgroundColor #F8FAFC
+skinparam ClassFontColor #111827
+skinparam ClassFontSize 14
+skinparam PackageBorderColor #64748B
+skinparam PackageFontColor #0F172A
+
+left to right direction
+
+package "Game" {
+  class BlackjackGame
+  class SaveManager
+  class LevelFactory
+}
+
+package "Participants" {
+  abstract class Participant
+  class Player
+  class Dealer
+}
+
+package "Cards" {
+  class Card
+  class Deck
+  class Hand
+}
+
+package "Levels" {
+  abstract class Level
+  class BeginnerLevel
+  class HighRollerLevel
+  class VIPLevel
+}
+
+Participant <|-- Player
+Participant <|-- Dealer
+
+Level <|-- BeginnerLevel
+Level <|-- HighRollerLevel
+Level <|-- VIPLevel
+
+BlackjackGame o-- Player
+BlackjackGame o-- Dealer
+BlackjackGame o-- SaveManager
+BlackjackGame --> LevelFactory
+BlackjackGame --> Level
+
+Participant *-- Hand
+Hand *-- Card
+Deck *-- Card
+
+LevelFactory ..> BeginnerLevel : creates
+LevelFactory ..> HighRollerLevel : creates
+LevelFactory ..> VIPLevel : creates
+
+SaveManager ..> Player : saves / loads
+
+note right of BlackjackGame
+  Main game controller
+  Runs rounds and table progression
+  3 wins required per table
+end note
+
+note right of Participant
+  Abstract base class
+  Virtual TakeTurn()
+end note
+
+note right of Level
+  Abstract level base
+  Different table rules
+end note
+
+legend right
+  <|--  Inheritance
+  *--   Composition
+  o--   Aggregation
+  -->   Uses / association
+  ..>   Creates / depends on
+endlegend
+@enduml

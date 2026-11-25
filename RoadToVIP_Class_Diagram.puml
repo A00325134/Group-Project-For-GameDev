@@ -1,0 +1,150 @@
+@startuml
+title Road to VIP - UML Class Diagram
+
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam roundcorner 10
+skinparam classAttributeIconSize 0
+skinparam ArrowColor #475569
+skinparam ClassBorderColor #334155
+skinparam ClassBackgroundColor #F8FAFC
+skinparam ClassFontColor #0F172A
+skinparam ClassHeaderBackgroundColor #E2E8F0
+skinparam ClassFontSize 13
+skinparam PackageBorderColor #64748B
+skinparam PackageFontColor #0F172A
+
+left to right direction
+
+package "Game Control" {
+  class BlackjackGame {
+    - _player : Player
+    - _dealer : Dealer
+    - _participants : vector<Participant*>
+    - _saveManager : SaveManager
+    - _levelNumber : int
+    - _tableWins : int
+    - _wins : int
+    - _losses : int
+    - _pushes : int
+    --
+    + Run() : void
+    + RecordWin() : void
+    + SaveProgress() : bool
+    + SaveAndQuit() : bool
+    + DisplayRules() : void
+  }
+
+  class SaveManager {
+    + SaveGame(...) : bool
+    + LoadGame(...) : bool
+  }
+
+  class LevelFactory {
+    {static} + CreateLevel(int) : Level*
+  }
+}
+
+package "Participants" {
+  abstract class Participant {
+    # _name : string
+    # _hand : Hand
+    --
+    + TakeTurn(Deck&) : void
+    + GetName() : string
+  }
+
+  class Player {
+    - _chips : int
+    --
+    + TakeTurn(Deck&) : void
+    + PlaceBet(int) : bool
+    + AddChips(int) : void
+  }
+
+  class Dealer {
+    - _standValue : int
+    --
+    + TakeTurn(Deck&) : void
+  }
+}
+
+package "Cards" {
+  class Card {
+    - _rank : string
+    - _suit : string
+    - _value : int
+    --
+    + GetRank() : string
+    + GetSuit() : string
+    + GetValue() : int
+  }
+
+  class Deck {
+    - _cards : vector<Card>
+    --
+    + Shuffle() : void
+    + DealCard() : Card
+  }
+
+  class Hand {
+    - _cards : vector<Card>
+    --
+    + AddCard(Card) : void
+    + GetValue() : int
+    + IsBust() : bool
+    + Clear() : void
+  }
+}
+
+package "Levels" {
+  abstract class Level {
+    - _name : string
+    - _minimumBet : int
+    - _winsRequired : int
+    - _completionBonus : int
+    --
+    + DisplayIntro() : void
+    + GetWinsRequired() : int
+  }
+
+  class BeginnerLevel
+  class HighRollerLevel
+  class VIPLevel
+}
+
+Participant <|-- Player
+Participant <|-- Dealer
+
+Level <|-- BeginnerLevel
+Level <|-- HighRollerLevel
+Level <|-- VIPLevel
+
+BlackjackGame o-- Player
+BlackjackGame o-- Dealer
+BlackjackGame o-- SaveManager
+BlackjackGame --> LevelFactory
+BlackjackGame --> Level
+BlackjackGame --> Participant
+
+Participant *-- Hand
+Hand *-- Card
+Deck *-- Card
+
+LevelFactory ..> BeginnerLevel : creates
+LevelFactory ..> HighRollerLevel : creates
+LevelFactory ..> VIPLevel : creates
+
+SaveManager ..> Player : saves / loads
+
+note bottom of Level
+  Table progression:
+  Beginner -> High Roller -> VIP
+  Each table requires 3 wins.
+end note
+
+note bottom of Participant
+  Abstract base class used for
+  polymorphic player/dealer turns.
+end note
+@enduml

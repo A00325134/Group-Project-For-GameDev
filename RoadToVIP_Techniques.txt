@@ -1,0 +1,54 @@
+ROAD TO VIP - FILES AND WHAT THEY DEMONSTRATE
+
+Participant.h / Participant.cpp
+- Abstraction
+- Pure virtual functions
+
+Player.h / Player.cpp
+- Inheritance
+- Encapsulation
+- Polymorphism
+
+Dealer.h / Dealer.cpp
+- Inheritance
+- Polymorphism
+
+Card.h / Card.cpp
+- Class
+- Encapsulation
+
+Hand.h / Hand.cpp
+- Encapsulation
+- vector
+- Composition
+
+Deck.h / Deck.cpp
+- Class
+- vector
+- Encapsulation
+
+Level.h / Level.cpp
+- Abstraction
+- Inheritance
+
+Levels.h / Levels.cpp
+- Inheritance
+- Polymorphism
+
+LevelFactory.h / LevelFactory.cpp
+- Factory design pattern
+
+BlackjackGame.h / BlackjackGame.cpp
+- Game loop
+- Class interaction
+- OOP
+
+SaveManager.h / SaveManager.cpp
+- File I/O
+- ifstream
+- ofstream
+
+main.cpp
+- Program entry point
+- Input / menu
+- Starting the game
